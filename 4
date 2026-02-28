@@ -1,0 +1,48 @@
+class SegmentTree:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [0] * (4 * self.n)
+        self.build(nums, 0, 0, self.n - 1)
+
+    def build(self, nums, idx, left, right):
+        if left == right:
+            self.tree[idx] = nums[left]
+            return
+
+        mid = (left + right) // 2
+        self.build(nums, 2*idx+1, left, mid)
+        self.build(nums, 2*idx+2, mid+1, right)
+
+        self.tree[idx] = max(self.tree[2*idx+1], self.tree[2*idx+2])
+
+    def update(self, index, value, idx=0, left=0, right=None):
+        if right is None:
+            right = self.n - 1
+
+        if left == right:
+            self.tree[idx] = value
+            return
+
+        mid = (left + right) // 2
+        if index <= mid:
+            self.update(index, value, 2*idx+1, left, mid)
+        else:
+            self.update(index, value, 2*idx+2, mid+1, right)
+
+        self.tree[idx] = max(self.tree[2*idx+1], self.tree[2*idx+2])
+
+    def query(self, l, r, idx=0, left=0, right=None):
+        if right is None:
+            right = self.n - 1
+
+        if r < left or l > right:
+            return float('-inf')
+
+        if l <= left and right <= r:
+            return self.tree[idx]
+
+        mid = (left + right) // 2
+        return max(
+            self.query(l, r, 2*idx+1, left, mid),
+            self.query(l, r, 2*idx+2, mid+1, right)
+        )
